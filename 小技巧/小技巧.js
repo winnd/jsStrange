@@ -7,6 +7,7 @@ console.log(!!a);
 var b = 'hello';
 console.log(!!~~b.indexOf('e'));
 
+// 装饰器 目前不支持
 @show()
 class C{
     constructor() {}

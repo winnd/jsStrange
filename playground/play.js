@@ -1,4 +1,0 @@
-Number.isInteger(42);
-
-
-
