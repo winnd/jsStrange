@@ -1,0 +1,44 @@
+<!DOCTYPE HTML>
+<html>
+ <head>
+  <title> New Document </title>
+  <style>
+	*{margin:0;padding:0;font-size:13px;}
+	 ul,li{list-style:none;}
+	 .star {position:relative;width:600px;height:24px; margin:20px auto 0;}
+	 .star span {float:left;height:19px;line-height:19px;}
+	 .star ul{margin:0 10px;}
+	 .star li{float:left;width:24px;height:22px;text-indent:-9999px;background:url('star.png') no-repeat;cursor:pointer;}
+	 .star li.on{background-position:0 -28px;}
+	 .star p {background:url('icon.gif') no-repeat;padding:10px 10px 0;position:absolute;top:20px;width:159px;height:60px;z-index:100;}
+	 .star p em {color: #FF6600;display: block;font-style: normal;}
+	 .star strong {color:#ff6600;padding-left:10px;}
+	 .hidden{display:none;}
+  </style>
+
+  
+<script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>  <script src="score.js"></script>
+ </head>
+
+ <body>
+	<div class="star">
+		<span>js评分效果 五星好评</span>
+		<ul>
+			<li><a href="javascript:;">1</a></li>
+			<li><a href="javascript:;">2</a></li>
+			<li><a href="javascript:;">3</a></li>
+			<li><a href="javascript:;">4</a></li>
+			<li><a href="javascript:;">5</a></li>
+		</ul>
+	</div>
+	<script>
+		 $(function(){
+			var score = new Score({
+				callback: function(cfg) {
+					// console.log(cfg.starAmount);
+					}
+			});
+		});
+	</script>
+ </body>
+</html>
