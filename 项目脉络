@@ -1,0 +1,72 @@
+后台
+1. 
+    dev.js
+    ① 入口为package.js "start": "./script/dev.js"
+    ② dev.js 启动服务器 vite.createServer()
+    ③ 编译打包electron主程序(/main/app.js)
+    ④ 创建electron进程 使用 spawn 命令, 里面加载的是③的代谢产物
+
+2. 
+    app.ts
+    ① 取消安全隔离 isolation(隔离)
+    ② new App()
+        Ⅰhik.main = new Main()                      (见 2.)
+        Ⅱ 注册协议 app.setAsDefaultProtocolClient()
+        Ⅲ 设为唯一应用并展示主窗口 handleSecondInstance() 
+        Ⅳ 处理用协议打开时传过来的参数 getSchemaParam()
+        Ⅴ 重写默认的使用协议路径打开当前应用方法 handleOpenUrl()
+        Ⅵ 加载完了显示主窗口 hik.main.win.show()
+
+3.
+    /main/Main.ts
+    ① 初始化窗口 initWin()
+        Ⅰ 实例化窗口配置文件
+        Ⅱ 初始化login窗口
+        Ⅲ protocol.load(this.win, "/login/form");  // r_ ???
+        Ⅳ 打开控制台
+        Ⅴ 注册显示登录窗口事件 showLogin
+        Ⅵ 注册登录窗口事件
+    ② 注册窗口事件 winEvent()
+        Ⅰ 显示窗口, 隐藏, 最大化, 最小化, 闪烁, 退出, [重登录, 重置数据]等
+    ③ 注册其他事件 ipcHandle()
+        Ⅰ 初始化数据, 展示主窗口,
+        Ⅱ 在 展示主窗口 'showMainWinAndResize' 事件中有 hik.init()      (见4.)
+        Ⅲ 进行了窗口大小之类的设置
+        Ⅳ 初始化了各种快捷键 hik.screenCapture.init(xx,xx)
+
+4. 
+    /main/hik.ts
+    ① 调用init() 时进行了初始化
+    ② 初始化 通知, 托盘图标 截图 文件管理器 日志 更新升级 mac的菜单 视频模块 窗口池
+
+前台
+*
+    渲染进程
+    ① 应该是vite自动加载index.html
+    ② index.html加载main.ts
+    ③ main.ts加载 /render/hik.ts
+    ④ 加载本地化资源文件
+    ⑤ 挂载router
+    ⑥ 把以上模块加载完成后加载#app
+
+*
+    render/main.vue
+    ① 加载Toast.vue Alert.vue Mask.vue组件
+        Ⅰ onMounted()时调用 hik.init
+
+    /render/pages/main.vue
+        
+*
+    /render/hik.js
+    ① 初始化icon
+    ② 获取用户信息
+    ③ 初始化数据库
+    ④ 初始化日志系统
+    
+    
+
+--- 其他问题
+    index.html不知道什么地方加载出来的
+    iframe去哪里了
+---技巧
+resetData 时使用 win.webContents.session.clearStorageData  清空存储数据
