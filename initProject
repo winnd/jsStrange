@@ -15,4 +15,5 @@ init project
     "vite": "^1.0.0-rc.13",
     "vue": "^3.0.4",
     "vue-router": "^4.0.0-rc.6"
+    "r_local_modules":"file:../node-ezmeetingsdk"
     }
