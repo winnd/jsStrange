@@ -1,4 +1,4 @@
-obj = {a:1,b:[{a:1},{b:23},{c:4}]}
+fibFn2Obj = {a:1,b:[{a:1},{b:23},{c:4}]}
 
 function a(obj,obj2,obj3){
   console.log(obj)

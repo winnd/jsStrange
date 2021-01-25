@@ -7,6 +7,6 @@
 *.iml
 out
 gen
-node爬虫/node_modules
+--node/node爬虫/node_modules
 
 
