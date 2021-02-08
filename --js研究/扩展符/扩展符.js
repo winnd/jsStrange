@@ -6,3 +6,8 @@ function recurisivelyCheckEqual (x, ...rest) {
 const result = recurisivelyCheckEqual(1, 1, 2)
 console.log(result)
 
+
+// ② 扩展到指定变量
+let a1
+let b = {a:'a'}
+;({a:a1} = b)
