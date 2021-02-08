@@ -1,72 +1,191 @@
 后台
-1. 
-    dev.js
-    ① 入口为package.js "start": "./script/dev.js"
-    ② dev.js 启动服务器 vite.createServer()
-    ③ 编译打包electron主程序(/main/app.js)
-    ④ 创建electron进程 使用 spawn 命令, 里面加载的是③的代谢产物
+1. ### 打包和启动服务器
+   dev.js
 
-2. 
-    app.ts
-    ① 取消安全隔离 isolation(隔离)
-    ② new App()
-        Ⅰhik.main = new Main()                      (见 2.)
-        Ⅱ 注册协议 app.setAsDefaultProtocolClient()
-        Ⅲ 设为唯一应用并展示主窗口 handleSecondInstance() 
-        Ⅳ 处理用协议打开时传过来的参数 getSchemaParam()
-        Ⅴ 重写默认的使用协议路径打开当前应用方法 handleOpenUrl()
-        Ⅵ 加载完了显示主窗口 hik.main.win.show()
+   ① 入口为package.js `"start": "./script/dev.js"`
 
-3.
-    /main/Main.ts
-    ① 初始化窗口 initWin()
-        Ⅰ 实例化窗口配置文件
-        Ⅱ 初始化login窗口
-        Ⅲ protocol.load(this.win, "/login/form");  // r_ ???
-        Ⅳ 打开控制台
-        Ⅴ 注册显示登录窗口事件 showLogin
-        Ⅵ 注册登录窗口事件
-    ② 注册窗口事件 winEvent()
-        Ⅰ 显示窗口, 隐藏, 最大化, 最小化, 闪烁, 退出, [重登录, 重置数据]等
-    ③ 注册其他事件 ipcHandle()
-        Ⅰ 初始化数据, 展示主窗口,
-        Ⅱ 在 展示主窗口 'showMainWinAndResize' 事件中有 hik.init()      (见4.)
-        Ⅲ 进行了窗口大小之类的设置
-        Ⅳ 初始化了各种快捷键 hik.screenCapture.init(xx,xx)
+   ② dev.js 启动服务器 `vite.createServer()`
 
-4. 
-    /main/hik.ts
-    ① 调用init() 时进行了初始化
-    ② 初始化 通知, 托盘图标 截图 文件管理器 日志 更新升级 mac的菜单 视频模块 窗口池
+   ③ 编译打包electron主程序(`/main/app.js`)  (见.2)
+    - 编译
+    - `esbuild.buildSync({...,入口,outfile,external: ["electron", '第三方库'],})`
+    - 输出到文件
+    - `const 文件流 = fs.readFileSync(outfile) // ???`
+    - `fs.writeFileSync(outfile, 文件流)`
 
+   ④ 创建electron进程 使用 spawn 命令, 里面加载的是③的代谢产物
+    - `spawn(require('electron').toString(), '入口js', {当前路径,环境变量})`
+
+   ⑤ 进行electron进程退出操作, 杀掉进程和服务器
+
+2. ### 启动主程序
+   app.ts
+
+    ② 设置多域访问规则
+
+    ③ 设置单一实例锁
+
+    ④ 设置崩溃日志
+     - `process.on("uncaughtException"), `
+     - `app.on('web-contents-created')`
+
+    ⑤ 引入 namespace 并在应用初始化时挂载main函数                      (见 3.)
+     - `namespace.main = new Main()`
+
+    ⑥ 注册协议
+     - `app.setAsDefaultProtocolClient()`
+
+    ⑦ 处理从协议唤起拉起来的情况
+     - `app.on('second-instance',cb)`
+
+    ⑧ 在使用协议唤起时挂上业务
+     - `app.on("open-url",cb)`
+
+    ⑨ 显示主窗口
+     - `mainWindow.show()`
+
+    ⑩ 注册通用主进程事件 (窗口, app, 托盘等应用级,系统级事件)
+     - `ipcMain.handle('event', cb)`
+
+    ⑩ 注册和卸载快捷键
+     - `app.on("browser-window-focus", cb)`
+     - `app.on("browser-window-blur", cb)`
+
+3. ### 主进程代码
+   Main.ts
+
+   ① 注册一堆主进程事件(token,网络状态等业务级事件)
+    - `ipcMain.handle('event', cb)`
+
+   ② 初始化窗口 initWin()
+    - 实例化配置文件
+    - nodeIntegrationInSubFrames
+    - thickFrame
+    - WebPreferencesConfig
+        - nodeIntegration
+        - webSecurity
+        - nodeIntegrationInSubFrames
+        - contextIsolation
+    - 创建新的 browserWindow
+    - 注册打开控制台
+        - `win.webContents.openDevTools({ mode: "undocked" })`
+    - 加载登录页面
+        - `protocol.load(this.win, "/login/form")`                      (见4.)
+    - 设置开机自启 `app.setLoginItemSettings({ openAtLogin: true })`
+
+   ③ 设置ipcMain的窗口事件(调整大小,注册窗口,卸载窗口, 聚焦, 快捷键唤起应用等, 
+      其中有些是挂到 namespace 上的对象, 如user, tary, 还会调用 namespace 初始化) (见4.)
+
+4. ### namespace 对象
+   namespace.ts
+
+   ① main
+    - 在app.ts里的app.ready挂载
+    - 挂载窗口对象(Main.ts文件), main指mainWindow
+
+   ② user
+    - 在Main.ts的初始化事件里初始化
+
+   ③ pool
+    - 注册事件
+      - `loadWindow(url, extraData)`
+        - 被动维护一个`/blank`窗口, 作为默认的空白页, 调用use()时触发新建窗口
+        - 根据url从字典里查窗口, 查不到就创建
+      - getExtraData()
+        - 返回挂载到当前win对象上的extraData对象
+    - pool的窗口对象
+       - 实例化配置文件
+       - 注册事件监听(关闭, 最大最小化)
+       - use() 设置宽高; 注册监听事件等
+       - 当调用时对其他窗口设置modal
+         - `win.setSkipTaskbar(true)`
+         - `win.setParentWindow(当前窗口)`
+         - `BrowserWindow.getAllWindows().forEach(x=>x.showMask(true)`
+
+   ④ protocol
+    - 注册 namespace:// 内部协议
+      - `schema.registerSchemesAsPrivileged`
+      - `privileges: {standard:true,supportFetchAPI:true,secure:true, corsEnabled:true}`
+    - `(protocal as scheme).registerBufferProtocol`
+      - 对用 `namespace://` 传进来的文件进行后缀解析,并使用`fs.readFile()`返回 `{mimeType, data}`
+      - 注册本应用内部的 `namespace://` 协议
+    - `(protocol as scheme).registerFileProtocol`
+      - 使用`file:///`替换file协议名
+
+   ⑤ macMenu
+    - 使用 `Menu.buildFromTemplate(template)` 创建菜单
+    - 使用 `Menu.setApplicationMenu(menu)` 设置菜单
+
+   ⑥ notify; tray; screenCapture; FileManager; Log; Updater;
+
+--------未解决 tcp对接 签名 升级--------------
+--------------------------
+
+Ⅰ 初始化数据, 展示主窗口, Ⅱ 在 展示主窗口 'showMainWinAndResize' 事件中有 namespace.init()      (见4.)
+Ⅲ 进行了窗口大小之类的设置 Ⅳ 初始化了各种快捷键 namespace.screenCapture.init(xx,xx)
+
+4.
+
+/main/namespace.ts 
+① 调用init() 时进行了初始化
+② 初始化 通知, 托盘图标 截图 文件管理器 日志 更新升级 mac的菜单 视频模块 窗口池
+
+5.
+
+/main/Window/Notify.ts ① 初始化窗口 Ⅰ 配置窗口参数 Ⅱ 放到窗口池 ③ 注册各种监听事件
+
+-------------------------
 前台
-*
-    渲染进程
-    ① 应该是vite自动加载index.html
-    ② index.html加载main.ts
-    ③ main.ts加载 /render/hik.ts
-    ④ 加载本地化资源文件
-    ⑤ 挂载router
-    ⑥ 把以上模块加载完成后加载#app
+
+1.
+
+渲染进程 ① 应该是vite自动加载index.html ② index.html加载main.ts                   (见2.)
+③ main.ts加载 /render/namespace.ts 
+④ 加载本地化资源文件
+⑤ 挂载router 
+⑥ 把以上模块加载完成后加载#app
+
+2.
+
+render/main.vue ① 加载Toast.vue Alert.vue Mask.vue组件 Ⅰ onMounted()时调用 namespace.init
+
+/render/pages/main.vue
 
 *
-    render/main.vue
-    ① 加载Toast.vue Alert.vue Mask.vue组件
-        Ⅰ onMounted()时调用 hik.init
 
-    /render/pages/main.vue
-        
-*
-    /render/hik.js
-    ① 初始化icon
-    ② 获取用户信息
-    ③ 初始化数据库
-    ④ 初始化日志系统
-    
-    
+/render/namespace.js 
+① 初始化icon 
+② 获取用户信息 
+③ 初始化数据库 
+④ 初始化日志系统
 
---- 其他问题
-    index.html不知道什么地方加载出来的
-    iframe去哪里了
----技巧
-resetData 时使用 win.webContents.session.clearStorageData  清空存储数据
+--- 其他问题 index.html不知道什么地方加载出来的 iframe去哪里了 ---技巧 resetData 时使用 win.webContents.session.clearStorageData 清空存储数据 messageFromCommonWin
+
+#### 坑
+
+对typescript不熟悉的化会不知道一个实例注册了几次, 会影响到 ipcMain, ipcRender及其他监听事件的注册(重复注册)
+
+#### 其他要注意的东西
+
+1. vite 插件的设置 plugins
+    - [踩坑](https://www.jianshu.com/p/ee5ec23d4716?utm_campaign=haruki)
+
+```js
+var options = {
+  plugins: [// optimizeDeps: {
+    //   //避开 import 被编译成 /@modules/fs?import
+    //   allowNodeBuiltins: ['electron']
+    // },
+    {/*自己写的 cjs2EMS 解析器*/ }],
+}
+```
+
+2. win7黑屏
+
+```js
+if (isWin7) app.disableHardwareAcceleration()
+```
+
+3. 执行额外代码 `executeJavaScript`
+
+4.this.win.webContents.openDevTools({ mode: "undocked" })
