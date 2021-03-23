@@ -1,0 +1,1 @@
+export default {"login":"login","loginByQR":"QR login","atPeople":"mentioned","atYou":"{@} you","newAddText":"--未找到--: 未翻译的内容"}
