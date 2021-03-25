@@ -1,0 +1,22 @@
+
+------2021/3/25下午11:20:26: error start------
+SyntaxError: Unexpected token d in JSON at position 0
+    at JSON.parse (<anonymous>)
+    at EventEmitter.<anonymous> (file:///E:/git_workplace/---webstorm/jsStrange/--node/event/event.js:8:10)
+    at EventEmitter.emit (node:events:369:20)
+    at file:///E:/git_workplace/---webstorm/jsStrange/--node/event/event.js:11:8
+    at ModuleJob.run (node:internal/modules/esm/module_job:154:23)
+    at async Loader.import (node:internal/modules/esm/loader:166:24)
+    at async Object.loadESM (node:internal/process/esm_loader:68:5)
+------2021/3/25下午11:20:26: error end------
+
+------2021/3/25下午11:21:02: error start------
+SyntaxError: Unexpected token d in JSON at position 0
+    at JSON.parse (<anonymous>)
+    at EventEmitter.<anonymous> (file:///E:/git_workplace/---webstorm/jsStrange/--node/event/event.js:8:10)
+    at EventEmitter.emit (node:events:369:20)
+    at file:///E:/git_workplace/---webstorm/jsStrange/--node/event/event.js:11:8
+    at ModuleJob.run (node:internal/modules/esm/module_job:154:23)
+    at async Loader.import (node:internal/modules/esm/loader:166:24)
+    at async Object.loadESM (node:internal/process/esm_loader:68:5)
+------2021/3/25下午11:21:02: error end------
