@@ -3,10 +3,11 @@
 ### Example user template
 
 # IntelliJ project files
-.idea
+/.idea/**
 *.iml
 out
 gen
 --node/node爬虫/node_modules
-
-
+**/**/node_modules
+**/**/dist
+**/**/package-lock.json
