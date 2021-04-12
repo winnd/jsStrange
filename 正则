@@ -4,5 +4,9 @@ const matchCaseRegExp = new RegExp(_keyword, 'i') 高亮内容
 item._commonName = targetStr.replace(matchCaseRegExp, `<b style="color: #1890ff;">${_keyword}</b>`)
 
 获取双引号内内容
-var a = `"仅支持jpg,jpeg和png格式","JPG, JPEG, and PNG formats only"`
-var reg = /\"([^\"]*)\"/
+var a1 = `"中文1,中文2","yingwen1,yingwen2"`
+var a2 = `"中文1,中文2",'yingwen1,yingwen2'`
+var reg = /\".*?\"/g
+var b1 = a1.match(reg)
+var b2 = a2.match(reg)
+console.log({b1,b2})
