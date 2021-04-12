@@ -10,3 +10,8 @@ var reg = /\".*?\"/g
 var b1 = a1.match(reg)
 var b2 = a2.match(reg)
 console.log({b1,b2})
+
+去掉头和尾
+var a1 = `"中文1,中文2","yingwen1,yingwen2"`
+a1=a1.substr(1)
+a1 = a1.substr(0,a1.length-1)
