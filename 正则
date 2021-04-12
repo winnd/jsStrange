@@ -1,4 +1,8 @@
 [\u4e00-\u9fa5].*[\u4e00-\u9fa5]            查找中文
 (t\((?!\').+(?!\')\))                       查找没加单引号的t('')
-const matchCaseRegExp = new RegExp(_keyword, 'i')
+const matchCaseRegExp = new RegExp(_keyword, 'i') 高亮内容
 item._commonName = targetStr.replace(matchCaseRegExp, `<b style="color: #1890ff;">${_keyword}</b>`)
+
+获取双引号内内容
+var a = `"仅支持jpg,jpeg和png格式","JPG, JPEG, and PNG formats only"`
+var reg = /\"([^\"]*)\"/
