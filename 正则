@@ -1,2 +1,4 @@
 [\u4e00-\u9fa5].*[\u4e00-\u9fa5]            查找中文
 (t\((?!\').+(?!\')\))                       查找没加单引号的t('')
+const matchCaseRegExp = new RegExp(_keyword, 'i')
+item._commonName = targetStr.replace(matchCaseRegExp, `<b style="color: #1890ff;">${_keyword}</b>`)
