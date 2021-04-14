@@ -139,7 +139,7 @@ var a = comp(aa,bb)
 a(fruits)
 
 ```
-
+---------------------todo 整理到这里
 2. 纯函数
     - 是函数式编程概念里的子集, 使用纯函数时,固定的入参会返回固定的结果, 并且不受任何可变状态或副作用的影响
         - 可变状态, 全局变量, js里外部包裹函数的变量等不固定因素, 实在要用可以参数的形式传入
@@ -175,4 +175,41 @@ closure 闭包
         将计算顺序组织成小步；
         在计算过程中组织内存管理。
 当关注点分离开来时，就有更多的机会进行模块升级，重用和独立开发
+
+
+---------------- 新加的没整理的 -----------------------
+函子
+    - functor 是實現了 map 函式並遵守一些特定規則的容器型別 (简单理解为 map就是函子, 其他还有maybe函子等)
+    - 函子是一个普通对象（在其他语言中，可能是一个类），它实现了 map 函数，在遍历每个对象值的时候生成一个新对象。
+    - (范畴论) 函子将一个范畴的每个物件和另一个范畴的物件相关连起来，并将第一个范畴的每个态射和第二个范畴的态射相关连起来
+    - https://blog.csdn.net/zhang6223284/article/details/82774584?utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromMachineLearnPai2%7Edefault-1.control&dist_request_id=1331647.13654.16184217759537601&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromMachineLearnPai2%7Edefault-1.control
+    - r: 看起来是一个实现了map接口的对象, 这个对象能做到xxx
+
+
+
+    - In functional programming, a functor is a design pattern inspired by the definition from category theory, 
+      that allows for a generic type to apply a function inside without changing the structure of the generic type.
+    - 在函数式编程中，函子是受范畴理论中定义的启发而产生的一种设计模式，它允许一个通用类型在不改变通用类型结构的情况下，在内部应用一个函数。
+    
+    - Functors are very useful in modeling functional effects to apply a function to computations that did not yet finish.
+    - 在模拟函数效应时，向尚未完成的计算应用函数是非常有用的。
+
+
+
+monad
+    - 单子是xxx
+    - ~~自函子上的幺半群(这句话是混淆了数学跟编码里的monad的概念)~~
+
+态射
+    - 态射是范畴内对象之间的映射关系。函子与它类似，函子是范畴与范畴间的映射关系，
+      也就是可以通过一个函子，把一个范畴映射到另一个范畴。
+
+- maybe 单子
+- bind
+- 
+
+
+
+
+
 
