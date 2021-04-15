@@ -1,0 +1,2333 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0049)http://www.ruanyifeng.com/blog/2015/07/monad.html -->
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+<meta name="generator" content="Movable Type  5.2.2">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--link rel="stylesheet" href="http://www.ruanyifeng.com/blog/styles.css" type="text/css" /-->
+<link rel="start" href="http://www.ruanyifeng.com/blog/" title="Home">
+<link rel="alternate" type="application/atom+xml" title="Recent Entries" href="http://feeds.feedburner.com/ruanyifeng">
+<script src="./图解 Monad - 阮一峰的网络日志_files/hm.js.下载"></script><script async="" src="./图解 Monad - 阮一峰的网络日志_files/analytics.js.下载"></script><script type="text/javascript" src="./图解 Monad - 阮一峰的网络日志_files/mt.js.下载"></script>
+<!--
+<rdf:RDF xmlns="http://web.resource.org/cc/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<Work rdf:about="http://www.ruanyifeng.com/blog/2021/04/weekly-issue-152.html">
+<dc:title>科技爱好者周刊（第 152 期）：从北大到技校</dc:title>
+<dc:description>这里记录每周值得分享的科技内容，周五发布。...</dc:description>
+<dc:creator>阮一峰</dc:creator>
+<dc:date>2021-04-02T08:31:26+08:00</dc:date>
+<license rdf:resource="http://creativecommons.org/licenses/by-nc-nd/3.0/" />
+</Work>
+<License rdf:about="http://creativecommons.org/licenses/by-nc-nd/3.0/">
+</License>
+</rdf:RDF>
+-->
+
+<style>
+body {
+  background-color: #f5f5d5;
+}
+
+#container::before {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background: rgba(0,0,0,0.1);
+  text-align: center;
+  content: "本站显示不正常，可能因为您使用了广告拦截器。";
+}
+
+</style>
+<script>
+function loadjscssfile(filename, filetype){
+    if (filetype=="js"){ //if filename is a external JavaScript file
+        var fileref=document.createElement('script')
+        fileref.setAttribute("type","text/javascript")
+        fileref.setAttribute("src", filename)
+    }
+    else if (filetype=="css"){ //if filename is an external CSS file
+        var fileref=document.createElement("link")
+        fileref.setAttribute("rel", "stylesheet")
+        fileref.setAttribute("type", "text/css")
+        fileref.setAttribute("href", filename)
+    }
+    if (typeof fileref!="undefined")
+        document.getElementsByTagName("head")[0].appendChild(fileref)
+}
+//loadjscssfile("http://www.ruanyifeng.com/blog/styles.css", "css");
+loadjscssfile('/static/themes/theme_scrapbook/theme_scrapbook.min.css', "css");
+
+
+function checker() {
+// var img = document.querySelector('img[src^="http://www.ruanyifeng.com/blog/images"]');
+var img = document.querySelector('a > img[src*="wangbase.com/blogimg/asset/"]');
+  if (img && window.getComputedStyle(img).display === 'none'){
+    var sponsor = document.querySelector('.entry-sponsor');
+    var prompt = document.createElement('div');
+    prompt.style = 'border: 1px solid #c6c6c6;border-radius: 4px;background-color: #f5f2f0;padding: 15px; font-size: 14px;';
+  prompt.innerHTML = '<p>您使用了广告拦截器，导致本站内容无法显示。</p><p>请将 www.ruanyifeng.com 加入白名单，解除广告屏蔽后，刷新页面。谢谢。</p>';
+    sponsor.parentNode.replaceChild(prompt, sponsor);
+    document.querySelector('#main-content').innerHTML = '';
+  }
+}
+
+setTimeout(checker, 1000);
+</script><link rel="stylesheet" type="text/css" href="./图解 Monad - 阮一峰的网络日志_files/theme_scrapbook.min.css">
+
+    
+    <link rel="prev" href="http://www.ruanyifeng.com/blog/2015/07/flex-examples.html" title="Flex 布局教程：实例篇">
+    <link rel="next" href="http://www.ruanyifeng.com/blog/2015/07/monte-carlo-method.html" title="蒙特卡罗方法入门">
+    
+    <title>图解 Monad - 阮一峰的网络日志</title>
+</head>
+<body id="scrapbook" class="mt-entry-archive one-column">
+<script>
+if (/mobile/i.test(navigator.userAgent) || /android/i.test(navigator.userAgent)) document.body.classList.add('mobile');
+
+/*
+window.addEventListener('load', function(event) {
+  setTimeout(function () {
+    hab('#sup-post-2');
+    hab('#cre-inner');
+  }, 1000);
+});
+*/
+</script>
+    <div id="container">
+        <div id="container-inner">
+
+            <div id="header">
+    <div id="header-inner">
+        <div id="header-content">
+
+
+            <div id="header-name">阮一峰的网络日志 <span id="site_location"> » <a href="http://www.ruanyifeng.com/blog/" accesskey="1">首页</a></span><span id="site_archive"> » <a href="http://www.ruanyifeng.com/blog/archives.html">档案</a></span>
+</div>
+
+<div id="google_search">
+<!-- SiteSearch Google -->
+<form action="https://www.baidu.com/s" target="_blank" method="get" id="cse-search-box">
+  <div>
+  <input type="text" size="20" name="origin" class="searchbox" id="sbi" value="">
+  <input type="hidden" name="wd" value="">
+  <!--input type="image" src="/static/themes/theme_scrapbook/images/top_search_submit.gif" class="searchbox_submit" value="" alt="搜索" name="sa" onclick="this.form.wd.value = this.form.origin.value + ' inurl:www.ruanyifeng.com/blog'" /-->
+  <input type="image" src="./图解 Monad - 阮一峰的网络日志_files/top_search_submit.gif" class="searchbox_submit" value="" alt="搜索" name="sa" onclick="this.form.wd.value = this.form.origin.value + &#39; 阮一峰&#39;">
+</div>
+</form>
+
+<!-- SiteSearch Google -->
+</div>
+<div id="feed_icon">
+<a href="http://www.ruanyifeng.com/feed.html" title="订阅Feed">
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAUzSURBVHjavFdbbFRVFF3nPjoz7dTWTittaW0jUDRAUqaNojyqREnEQKgfUj9MqqAmhqRt/OCD4CuY+Kckoh+aiGKC+gMJbdHoRysJ8dkhhmJLNdDKtJU+6GMK87j3Hs85d2Z6HzNtMYWb3Dn3NWftvfba+5xNYDl+e6Fkj6yqb/oDRbWq14vlPBLRKCITkxf0ROLt+hNjp1PPSRK4kA3vF1dXNRcWlyA2OQU9eos9opAkAiKxD+XkKO6t15aRWO7J/MgmAZU8MEgexgZHMX518Dh72sYMmVKShnxWuWHdHtxKIDIYTgMuDzgfmSOIQkYMpdUF8OY92Hytt4/jvkg47czzU16iQovM3QFwmNck+Yyduu7D6NA0Z6JR4THntFs9V4tWQg6Ui3s6MwKDncsFTnXKLJhDSeUK3AgPtyhccDzmVs999buRt/1Vm4i0od+hX7+MRG87jPGB/w1u8FPj9xEw7McVrnYuOCvtpjTth3J/nTg99c8LRhKhr6D3dTB5R24bXFwbMXBsyZzeoXaycEpJ95TB09AGX/NpqLVNtw8urnVzLvHjFNxiFqRy2OOHuqUVnue+ACkoWzo4O6lGzTmuHq6nPvY2m9rVqjrIK2rMEKxqyG5NPAKt+wjo0LklgfNxJkZMA3KJvqRUk3z5UFY3QH14P0h+WUY79HPvgv7VuSg4ZRGY1YgZgqXmORccF17sy2ehnf9AeO085K2HQFbtXBScj0LcpgF2cN+WV+DZ/LJQu6gD4R7oV7pBJwbSgtMvfiPoVp56DySwxm7EtkMs1WdAB7qzggsDJKQYsHucSkOudrkiCPWR/fA2nYCn8SNIK4NptSMyAu3sAdDRkIsJdfth0LzSrODUoPNZ4KI9SxJI5UHk7D4GdQfz2us31c7CoHMjRkKuDPHseCMrONVhNcDJwMJpKFVvg9L4OaTiNWm1x789KCqkrXhVBiEz0WYCT2nAzQAD1/vaETv1GrRfP4Vx5cfMNcDPwvP0h0DhanPym7OIf/+O67vcJ1/PCJ4KgdzaUP6Wz+dU+5yIL6fV+PsHGAOdwlPpvvUOyeeAVGyCdqkDNB6DPjsBSrnndfOGevOh3RhGItxvA+fX1CtbGFhgYUFkFMZPR6F1HnClHq8HyubWtJexX06CRmdt33hrd7nA7SFY4qoGpnYuOKcRykPPgDCBcsHx9Iv+fNL2PueBehCWUfYQIIMGLOCcOmXDXsh1+yCt35tUPfvzGFuSvzvoinXOxqa02qOhM6733nVP2MAdaej2XN11DPKjLZCD+yBvahGCo7JfTKAN9UD7s8Oe9zUNIhz8fWI8DG2k38WCFdxugANcXrvTVd1IEbuv3Jour7Hzn7jLMBNfKs7R3i67gRVrbeCOEDhinmWhAatsqdquM2XzHZINhK2cqTjHr/XZdVJUbgN3MWAVXKbSyg9jesRW2xP9di+lwrL5ojM3m2H/kG9hwcIA37c71W6wJdW2J2S5nrjYbq/t1AHAhJsKQeyfPvf6IMJgghPJhFZ4x0KlfLFvt22du45Au/A1SOlGc0P672XXwhLtOcM0kTTEMMd0qkVmMNXxMd/tsedUjInr4SQDgOfeXMSiN0FCL5WHah4L1qqYXPJOJlttd+a5M+YpcG5poLYKQ5f+6JJ4r8bbJYP47hq4r7QAs9PjYNhHJd4o8l5taiwuOpa7AS4XKqI/5NjJbTnaWK92nLdLuhQAJayRNMiygXPBeQN+Qbvu0zDc3y+aUzhbkGR73sI7ljvUnndx2q3t+X8CDAD66FtrIL864AAAAABJRU5ErkJggg==" alt="" style="border: 0pt none;">
+</a></div>
+
+        </div>
+    </div>
+</div>
+
+
+
+            <div id="content">
+                <div id="content-inner">
+
+
+                    <div id="alpha">
+                        <div id="alpha-inner">
+
+
+                            <div id="entry-1847" class="entry-asset asset hentry">
+                                <div class="asset-header">
+<div class="asset-nav entry-nav">
+
+<div class="entry-location">
+<ul>
+<li>上一篇：<a href="http://www.ruanyifeng.com/blog/2015/07/flex-examples.html" title="Flex 布局教程：实例篇">Flex&nbsp;布局教程：实</a></li>
+<li>下一篇：<a href="http://www.ruanyifeng.com/blog/2015/07/monte-carlo-method.html" title="蒙特卡罗方法入门">蒙特卡罗方法入门&nbsp;&nbsp;&nbsp;</a></li>
+</ul>
+</div>
+
+
+    
+                                    <div class="entry-categories">
+                                        <p>分类<span class="delimiter">：</span></p>
+                                        <ul>
+                                            <li><a href="http://www.ruanyifeng.com/blog/computer/" rel="tag">理解计算机</a></li>
+                                        </ul>
+                                    </div>
+    
+
+
+                                            
+<div class="entry-location-mobile" style="float: right;">
+<ul>
+<li><a href="http://www.ruanyifeng.com/blog/2015/07/flex-examples.html" title="Flex 布局教程：实例篇">⇐&nbsp;</a></li>
+<li><a href="http://www.ruanyifeng.com/blog/2015/07/monte-carlo-method.html" title="蒙特卡罗方法入门">&nbsp;⇒</a></li>
+</ul>
+</div>
+
+</div>
+</div>
+
+                          
+<article class="hentry">
+                                    <h1 id="page-title" class="asset-name entry-title">图解 Monad</h1>
+
+
+
+<div class="asset-meta">
+                                        
+
+                                            <p class="vcard author">作者： <a class="fn url" href="http://www.ruanyifeng.com/">阮一峰</a></p>
+                                    <p>日期： <a href="http://www.ruanyifeng.com/blog/2015/07/"><abbr class="published" title="2015-07-16T09:34:34+08:00">2015年7月16日</abbr></a></p>
+
+
+</div>
+
+
+
+
+
+
+
+
+                                
+                                <div class="asset-content entry-content" id="main-content">
+
+                                    <!-- div class="asset-body" -->
+                                        <p>函数式编程有一个重要概念，叫做<a href="https://en.wikipedia.org/wiki/Monad_%28functional_programming%29" target="_blank">Monad</a>。</p>
+
+                                    <!-- /div -->
+
+
+                                    <!-- div id="more" class="asset-more" -->
+                                        <p><img src="./图解 Monad - 阮一峰的网络日志_files/bg2015071601.jpg" alt="" title=""></p>
+
+<p>网上有很多解释（<a href="http://stackoverflow.com/questions/2704652/monad-in-plain-english-for-the-oop-programmer-with-no-fp-background" target="_blank">这里</a>和<a href="http://stackoverflow.com/questions/44965/what-is-a-monad" target="_blank">这里</a>），但都很抽象，不容易看懂。我尝试了好多次，还是不明白Monad到底是什么。</p>
+
+<p><img src="./图解 Monad - 阮一峰的网络日志_files/bg2015071602.jpg" alt="" title=""></p>
+
+<p>昨天，我读到了<a href="http://adit.io/posts/2013-04-17-functors,_applicatives,_and_monads_in_pictures.html" target="_blank">Aditya Bhargava</a>的文章，他画了很多图。我想了半天，终于恍然大悟。下面，我就用这些图来解释Monad。</p>
+
+<p>1.</p>
+
+<p><img src="./图解 Monad - 阮一峰的网络日志_files/bg2015071603.png" alt="" title=""></p>
+
+<p>软件最基本的数据，就是各种值（value）。</p>
+
+<p>2.</p>
+
+<p><img src="./图解 Monad - 阮一峰的网络日志_files/bg2015071604.png" alt="" title=""></p>
+
+<p>处理值的一系列操作，可以封装成函数。输入一个值，会得到另一个值。上图的"(+3)"就是一个函数，对输入的值加上3，再输出。</p>
+
+<p>3.</p>
+
+<p><img src="./图解 Monad - 阮一峰的网络日志_files/bg2015071605.png" alt="" title=""></p>
+
+<p>函数很像漏斗，上面进入一个值，下面出来一个值。</p>
+
+<p>4.</p>
+
+<p><img src="./图解 Monad - 阮一峰的网络日志_files/bg2015071606.png" alt="" title=""></p>
+
+<p>函数可以连接起来使用，一个函数接着另一个函数。</p>
+
+<p>5.</p>
+
+<p><img src="./图解 Monad - 阮一峰的网络日志_files/bg2015071607.png" alt="" title=""></p>
+
+<p>函数还可以依次处理数据集合的每个成员。</p>
+
+<p>6.</p>
+
+<p><img src="./图解 Monad - 阮一峰的网络日志_files/bg2015071608.png" alt="" title=""></p>
+
+<p>说完了函数，再来看第二个概念：数据类型（type）。</p>
+
+<p>数据类型就是对值的一种封装，不仅包括值本身，还包括相关的属性和方法。上图就是2的封装，从此2就不是一个单纯的值，而是一种数据类型的实例，只能在数据类型的场景（context）中使用。</p>
+
+<p>7.</p>
+
+<p><img src="./图解 Monad - 阮一峰的网络日志_files/bg2015071609.png" alt="" title=""></p>
+
+<p>2变成数据类型以后，原来的函数就不能用了。因为"(+3)"这个函数是处理值的（简称"值函数"），而不是处理数据类型的。</p>
+
+<p>8.</p>
+
+<p><img src="./图解 Monad - 阮一峰的网络日志_files/bg2015071610.png" alt="" title=""></p>
+
+<p>我们需要重新定义一种运算。它接受"值函数"和数据类型的实例作为输入参数，使用"值函数"处理后，再输出数据类型的另一个实例。上图的fmap就代表了这种运算。</p>
+
+<p>9.</p>
+
+<p><img src="./图解 Monad - 阮一峰的网络日志_files/bg2015071611.png" alt="" title=""></p>
+
+<p>fmap的内部，实际上是这样：打开封装的数据类型，取出值，用值函数处理以后，再封装回数据类型。</p>
+
+<p>10.</p>
+
+<p><img src="./图解 Monad - 阮一峰的网络日志_files/bg2015071612.png" alt="" title=""></p>
+
+<p>一个有趣的问题来了。如果我们把函数也封装成数据类型，会怎样？</p>
+
+<p>上图就是把函数"(+3)"封装成一种数据类型。</p>
+
+<p>11.</p>
+
+<p><img src="./图解 Monad - 阮一峰的网络日志_files/bg2015071613.png" alt="" title=""></p>
+
+<p>这时，就需要再定义一种新的运算。它不是值与值的运算，也不是值与数据类型的运算，而是数据类型与数据类型的运算。</p>
+
+<p>上图中，两个数据类型进行运算。首先，取出它们各自的值，一个是函数，一个是数值；然后，使用函数处理数值；最后，将函数的返回结果再封装进数据类型。</p>
+
+<p>12.</p>
+
+<p><img src="./图解 Monad - 阮一峰的网络日志_files/bg2015071614.png" alt="" title=""></p>
+
+<p>函数可以返回值，当然也可以返回数据类型。</p>
+
+<p>13.</p>
+
+<p><img src="./图解 Monad - 阮一峰的网络日志_files/bg2015071615.png" alt="" title=""></p>
+
+<p>我们需要的是这样一种函数：它的输入和输出都是数据类型。</p>
+
+<p>14.</p>
+
+<p><img src="./图解 Monad - 阮一峰的网络日志_files/bg2015071616.png" alt="" title=""></p>
+
+<p>这样做的好处是什么？</p>
+
+<p>因为数据类型是带有运算方法的，如果每一步返回的都是数据类型的实例，我们就可以把它们连接起来。</p>
+
+<p>15.</p>
+
+<p><img src="./图解 Monad - 阮一峰的网络日志_files/bg2015071617.png" alt="" title=""></p>
+
+<p>来看一个实例，系统的I/O提供了用户的输入。</p>
+
+<p>16.</p>
+
+<p><img src="./图解 Monad - 阮一峰的网络日志_files/bg2015071618.png" alt="" title=""></p>
+
+<p>getLine函数可以将用户的输入处理成一个字符串类型（STR）的实例。</p>
+
+<p>17.</p>
+
+<p><img src="./图解 Monad - 阮一峰的网络日志_files/bg2015071619.png" alt="" title=""></p>
+
+<p>readfile函数接受STR实例当作文件名，返回一个文件类型的实例。</p>
+
+<p>18.</p>
+
+<p><img src="./图解 Monad - 阮一峰的网络日志_files/bg2015071620.png" alt="" title=""></p>
+
+<p>putStrLn函数将文件内容输出。</p>
+
+<p>19.</p>
+
+<p><img src="./图解 Monad - 阮一峰的网络日志_files/bg2015071621.png" alt="" title=""></p>
+
+<p>所有这些运算连起来，就叫做Monad。</p>
+
+<p>简单说，Monad就是一种设计模式，表示将一个运算过程，通过函数拆解成互相连接的多个步骤。你只要提供下一步运算所需的函数，整个运算就会自动进行下去。</p>
+
+<p>（完）</p>
+
+                                    <!-- /div -->
+
+                                </div>
+    <script type="text/javascript" src="./图解 Monad - 阮一峰的网络日志_files/newwindow.js.下载"></script>
+                                <div class="asset-footer">
+
+<h3>文档信息</h3>
+<ul>
+<li>版权声明：自由转载-非商用-非衍生-保持署名（<a href="http://creativecommons.org/licenses/by-nc-nd/3.0/deed.zh">创意共享3.0许可证</a>）</li>
+<li>发表日期： <abbr class="published" title="2015-07-16T09:34:34+08:00">2015年7月16日</abbr></li>
+
+</ul>
+                                </div>
+</article>
+                            </div>
+
+
+
+  <div style="display: inline-block ! important;width: 100%;">
+  
+  </div>
+
+
+
+<div id="related_entries">
+<h2>相关文章</h2>
+<ul>
+
+<li><strong>2021.01.27: <a href="http://www.ruanyifeng.com/blog/2021/01/_xor.html">异或运算 XOR 教程</a></strong>
+
+                           <div class="entry-body">
+                              大家比较熟悉的逻辑运算，主要是"与运算"（AND）和"或运算"（OR），还有一种"异或运算"（XOR），也非常重要。
+
+                           </div>
+
+</li>
+
+ 
+<li><strong>2019.11.17: <a href="http://www.ruanyifeng.com/blog/2019/11/fault-tolerance.html">容错，高可用和灾备</a></strong>
+
+                           <div class="entry-body">
+                              标题里面的三个术语，很容易混淆，专业人员有时也会用错。
+
+                           </div>
+
+</li>
+
+ 
+<li><strong>2019.11.03: <a href="http://www.ruanyifeng.com/blog/2019/11/50-cs-falsehoods.html">关于计算机科学的50个误解</a></strong>
+
+                           <div class="entry-body">
+                              计算机科学（Computer Science，简称 CS）是大学的热门专业。但是，社会上对这个专业有很多误解，甚至本专业的学生也有误解。
+
+                           </div>
+
+</li>
+
+ 
+<li><strong>2019.10.29: <a href="http://www.ruanyifeng.com/blog/2019/10/artificial-intelligenence.html">你所不知道的 AI 进展</a></strong>
+
+                           <div class="entry-body">
+                              人工智能现在是常见词汇，大多数人可能觉得，它是学术话题，跟普通人关系不大。
+
+                           </div>
+
+</li>
+
+ 
+</ul>
+</div>
+
+
+
+                    
+
+                    <div id="comments" class="comments">
+
+
+    
+    
+        
+    <h2 class="comments-header">留言（51条）</h2>
+
+    <div id="comments-content" class="comments-content" style="clear: left;">
+        
+        <div id="comment-350852" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author"><a title="http://www.ourd3js.com/" href="http://www.ourd3js.com/" target="_blank" rel="nofollow">馒头华华</a></span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-350852">
+            <p>佩服佩服，简单易懂。</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="July 16, 2015 10:05 AM">2015年7月16日 10:05</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-350852">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用馒头华华的这条留言" onclick="return CommentQuote(&#39;comment-quote-350852&#39;,&#39;馒头华华&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-350853" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">corper</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-350853">
+            <p>都说Monad可以简化IO操作，没看出来什么关系！</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="July 16, 2015 10:11 AM">2015年7月16日 10:11</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-350853">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用corper的这条留言" onclick="return CommentQuote(&#39;comment-quote-350853&#39;,&#39;corper&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-350856" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author"><a title="http://www.outofmemory.com.cn" href="http://www.outofmemory.com.cn/" target="_blank" rel="nofollow">崔超</a></span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-350856">
+            <p>很生动形象。看懂一半，稍后再多看几遍。</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="July 16, 2015 10:24 AM">2015年7月16日 10:24</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-350856">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用崔超的这条留言" onclick="return CommentQuote(&#39;comment-quote-350856&#39;,&#39;崔超&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-350857" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author"><a title="http://github.com" href="http://github.com/" target="_blank" rel="nofollow">genesis</a></span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-350857">
+            <p>@corper，谁告诉你Monad可以简化IO操作的？ Monad最大的作用就是在pure 函数式编程中处理副作用。你见过C，JAVA之类的命令式语言提过Monad的概念吗？只有Haskell，只要学Haskell就逃不了理解Monad，因为它是pure的。</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="July 16, 2015 10:33 AM">2015年7月16日 10:33</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-350857">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用genesis的这条留言" onclick="return CommentQuote(&#39;comment-quote-350857&#39;,&#39;genesis&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-350858" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">ggarlic</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-350858">
+            <blockquote>
+<pre>引用genesis的发言：</pre>
+
+<p>@corper，谁告诉你Monad可以简化IO操作的？ Monad最大的作用就是在pure 函数式编程中处理副作用。你见过C，JAVA之类的命令式语言提过Monad的概念吗？只有Haskell，只要学Haskell就逃不了理解Monad，因为它是pure的。</p>
+
+</blockquote>
+
+<p>其他语言也可以是现实monad其实</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="July 16, 2015 10:43 AM">2015年7月16日 10:43</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-350858">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用ggarlic的这条留言" onclick="return CommentQuote(&#39;comment-quote-350858&#39;,&#39;ggarlic&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-350859" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">cttet</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-350859">
+            <p>最重要的就是conclusion。。。然后你没有放过来</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="July 16, 2015 10:48 AM">2015年7月16日 10:48</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-350859">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用cttet的这条留言" onclick="return CommentQuote(&#39;comment-quote-350859&#39;,&#39;cttet&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-350860" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">cttet</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-350860">
+            <p>而且真正图解monad部分的马桶搋子也没有放过来。。。结果绝大部分篇幅讲functor和Applicative。</p>
+
+<p>不过感谢你给了原文的link</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="July 16, 2015 10:55 AM">2015年7月16日 10:55</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-350860">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用cttet的这条留言" onclick="return CommentQuote(&#39;comment-quote-350860&#39;,&#39;cttet&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-350861" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">cttet</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-350861">
+            <p>还有。。。<br>
+在15点你说<br>
+“来看一个实例，用户输入一个值10。”<br>
+其实那根本是IO...<br>
+</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="July 16, 2015 10:58 AM">2015年7月16日 10:58</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-350861">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用cttet的这条留言" onclick="return CommentQuote(&#39;comment-quote-350861&#39;,&#39;cttet&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-350864" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">阮一峰</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-350864">
+            <p>@cttet，</p>
+
+<p>确实看错了，已经改过来了，谢谢提醒。</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="July 16, 2015 11:25 AM">2015年7月16日 11:25</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-350864">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用阮一峰的这条留言" onclick="return CommentQuote(&#39;comment-quote-350864&#39;,&#39;阮一峰&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-350868" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author"><a title="http://gpio.me" href="http://gpio.me/" target="_blank" rel="nofollow">Cheney</a></span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-350868">
+            <p>目前没有共鸣，不知道这个有什么用处。</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="July 16, 2015 11:47 AM">2015年7月16日 11:47</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-350868">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用Cheney的这条留言" onclick="return CommentQuote(&#39;comment-quote-350868&#39;,&#39;Cheney&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-350869" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author"><a title="http://wilbeibi.com" href="http://wilbeibi.com/" target="_blank" rel="nofollow">wilbeibi</a></span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-350869">
+            <p>原文是好文章啊，但还是浅了。</p>
+
+<p>PS：图片中的 Just 是指 Haskell 中的 Just type constructor。</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="July 16, 2015 12:38 PM">2015年7月16日 12:38</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-350869">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用wilbeibi的这条留言" onclick="return CommentQuote(&#39;comment-quote-350869&#39;,&#39;wilbeibi&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-350870" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">tomz</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-350870">
+            <p>我看文章，一直不知道3为什么不是数据类型，看了原文才知道，不是“数据类型”，而是“maybe数据类型”。</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="July 16, 2015 12:54 PM">2015年7月16日 12:54</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-350870">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用tomz的这条留言" onclick="return CommentQuote(&#39;comment-quote-350870&#39;,&#39;tomz&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-350871" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">nnkken</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-350871">
+            <p>我也在學習相關的內容，建議大家可以看看這兩個slide：</p>
+
+<p>Railway Oriented Programming<br>
+<a href="http://fsharpforfunandprofit.com/rop/" rel="nofollow">http://fsharpforfunandprofit.com/rop/</a></p>
+
+<p>Functional Programming Design Patterns<br>
+<a href="http://fsharpforfunandprofit.com/fppatterns/" rel="nofollow">http://fsharpforfunandprofit.com/fppatterns/</a></p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="July 16, 2015  1:02 PM">2015年7月16日 13:02</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-350871">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用nnkken的这条留言" onclick="return CommentQuote(&#39;comment-quote-350871&#39;,&#39;nnkken&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-350872" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">Quon</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-350872">
+            <p>函数式的纯洁性在于对于一个特定的参数，必定存在一个特定的返回值。所以函数式的执行是无关顺序的。<br>
+而在现实世界里，很多东西就必须是有顺序的，比如输入输出。于是Haskell决定用monad去模拟这种操作。monad来源于范畴论，他并不解决副作用问题本身，而是对此类问题提供了抽象。</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="July 16, 2015  1:08 PM">2015年7月16日 13:08</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-350872">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用Quon的这条留言" onclick="return CommentQuote(&#39;comment-quote-350872&#39;,&#39;Quon&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-350882" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author"><a title="http://wyw.dcweb.cn/" href="http://wyw.dcweb.cn/" target="_blank" rel="nofollow">吴咏炜</a></span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-350882">
+            <p>“数据类型”太让人昏了。原文中是把数值封装到Maybe这样的特殊数据类型里。丢了Maybe，跟“数据类型”相关的都不太好理解了。</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="July 16, 2015  8:25 PM">2015年7月16日 20:25</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-350882">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用吴咏炜的这条留言" onclick="return CommentQuote(&#39;comment-quote-350882&#39;,&#39;吴咏炜&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-350884" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">DamonChen</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-350884">
+            <p>非常感谢，这篇文章终于让我明白了monad。之前找了很多文章，也一直未明白，不过这个monad的学习之前，有一个cps的概念可能会更好一些。</p>
+
+<p>我觉得你下一步是想要去描述promise类似的实现了。</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="July 16, 2015 11:16 PM">2015年7月16日 23:16</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-350884">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用DamonChen的这条留言" onclick="return CommentQuote(&#39;comment-quote-350884&#39;,&#39;DamonChen&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-350896" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">摇篮里的猫</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-350896">
+            <p>看了哈，还是没看懂<br>
+一直认为函数式编程的思想就是把函数当做另外一个函数的参数来使用，不知道错多远了：）</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="July 17, 2015  5:13 PM">2015年7月17日 17:13</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-350896">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用摇篮里的猫的这条留言" onclick="return CommentQuote(&#39;comment-quote-350896&#39;,&#39;摇篮里的猫&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-350897" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">joeyang</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-350897">
+            <p>谈谈monad，可以想象promise，在异步情况下的使用，链接各种函数，然后得到结果。</p>
+
+<p>如果没有promise，你也可以用各种callback做。</p>
+
+<p>对于javascript， async, await是不是类似于haskell的do syntax呢？</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="July 17, 2015  5:37 PM">2015年7月17日 17:37</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-350897">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用joeyang的这条留言" onclick="return CommentQuote(&#39;comment-quote-350897&#39;,&#39;joeyang&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-350910" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">sasa</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-350910">
+            <p>很棒的文章。</p>
+
+<p>您好，我曾经在读书公园的联系我们页面中给您发过关于注册问题的邮件，一直未能得到回复。</p>
+
+<p>不知是否发送有误。</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="July 18, 2015  8:53 PM">2015年7月18日 20:53</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-350910">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用sasa的这条留言" onclick="return CommentQuote(&#39;comment-quote-350910&#39;,&#39;sasa&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-350955" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author"><a title="http://www.jqk6.com" href="http://www.jqk6.com/" target="_blank" rel="nofollow">jqk6</a></span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-350955">
+            <p>难道不就是UNIX管道吗？</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="July 22, 2015  1:07 PM">2015年7月22日 13:07</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-350955">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用jqk6的这条留言" onclick="return CommentQuote(&#39;comment-quote-350955&#39;,&#39;jqk6&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-350970" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author"><a title="http://www.pinruan.net" href="http://www.pinruan.net/" target="_blank" rel="nofollow">Trinity</a></span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-350970">
+            <p>monad 意思就是单阶的，跟UNIX管道意义上一样，只是在具体上更抽象。<br>
+前文的 chaining operations 这个词解释的很到位。<br>
+实际中，请把 monad 当作 Interger,String 之类的，每个 chaining operation 是一个 instance 就对了。</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="July 23, 2015 11:56 AM">2015年7月23日 11:56</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-350970">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用Trinity的这条留言" onclick="return CommentQuote(&#39;comment-quote-350970&#39;,&#39;Trinity&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-350971" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author"><a title="http://www.pinruan.net" href="http://www.pinruan.net/" target="_blank" rel="nofollow">Trinity</a></span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-350971">
+            <blockquote>
+<pre>引用cttet的发言：</pre>
+
+<p>还有。。。<br>
+在15点你说<br>
+“来看一个实例，用户输入一个值10。”<br>
+其实那根本是IO...</p>
+
+<p><br>
+</p></blockquote><br>
+你看看网站字体有多重要吧....
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="July 23, 2015 11:59 AM">2015年7月23日 11:59</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-350971">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用Trinity的这条留言" onclick="return CommentQuote(&#39;comment-quote-350971&#39;,&#39;Trinity&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-350973" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">仰泳009</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-350973">
+            <p>感觉有点像管道啊，以前没听说过这个词啊，看来还得多学习啊。<br>
+图画得很有意思，有时间再看看原文。</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="July 23, 2015  2:42 PM">2015年7月23日 14:42</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-350973">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用仰泳009的这条留言" onclick="return CommentQuote(&#39;comment-quote-350973&#39;,&#39;仰泳009&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-351033" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">flw</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-351033">
+            <blockquote>
+<pre>引用cttet的发言：</pre>
+
+<p>最重要的就是conclusion。。。然后你没有放过来</p>
+
+</blockquote>
+
+<p>Maybe 那部分也没有放进来，导致 Just 一下子很突兀。</p>
+
+<p>看来阮老师现在也是一知半解呀。顿时找到自信了。</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="July 28, 2015  1:19 PM">2015年7月28日 13:19</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-351033">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用flw的这条留言" onclick="return CommentQuote(&#39;comment-quote-351033&#39;,&#39;flw&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-351034" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">flw</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-351034">
+            <p>讲的完全不对呀。<br>
+好多次序都颠倒了。</p>
+
+<p>原文写的真棒！</p>
+
+<p>在译文中，列表、Just 和  都太突兀了。</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="July 28, 2015  1:35 PM">2015年7月28日 13:35</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-351034">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用flw的这条留言" onclick="return CommentQuote(&#39;comment-quote-351034&#39;,&#39;flw&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-351037" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">flw</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-351037">
+            <p>坑爹啊。<br>
+原文末尾有中文译文的。</p>
+
+<p><a href="http://jiyinyiyong.github.io/monads-in-pictures/" rel="nofollow">http://jiyinyiyong.github.io/monads-in-pictures/</a></p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="July 28, 2015  3:02 PM">2015年7月28日 15:02</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-351037">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用flw的这条留言" onclick="return CommentQuote(&#39;comment-quote-351037&#39;,&#39;flw&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-351138" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">bqdx</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-351138">
+            <p>感觉就是个装在盒子里的lambda，最好的例子其实是flatMap</p>
+
+<p>比如</p>
+
+<p>[1, 2, 3].flatMap( x =&gt; [x, x+1])</p>
+
+<p>结果是</p>
+
+<p>[1, 2, 2, 3, 3, 4]</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="August  5, 2015 11:58 AM">2015年8月 5日 11:58</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-351138">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用bqdx的这条留言" onclick="return CommentQuote(&#39;comment-quote-351138&#39;,&#39;bqdx&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-351343" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author"><a title="http://www.catscarlet.com" href="http://www.catscarlet.com/" target="_blank" rel="nofollow">独行猫儿</a></span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-351343">
+            <p>生动形象，便于理解。比其他文章里枯燥乏味的冗长大论好太多了。</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="August 20, 2015  4:00 PM">2015年8月20日 16:00</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-351343">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用独行猫儿的这条留言" onclick="return CommentQuote(&#39;comment-quote-351343&#39;,&#39;独行猫儿&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-351467" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">llww</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-351467">
+            <p>图示完全没帮助。完全看文字才能理解。</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="August 28, 2015 12:42 AM">2015年8月28日 00:42</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-351467">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用llww的这条留言" onclick="return CommentQuote(&#39;comment-quote-351467&#39;,&#39;llww&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-351497" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">riophae</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-351497">
+            <p>简单易懂</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="August 31, 2015 11:06 AM">2015年8月31日 11:06</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-351497">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用riophae的这条留言" onclick="return CommentQuote(&#39;comment-quote-351497&#39;,&#39;riophae&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-351629" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">paintf</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-351629">
+            <p>偏个题，单子在哲学里是个重要的概念，大致意思就是完整单个的个体却能反射出整个世界</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="September  9, 2015  3:48 PM">2015年9月 9日 15:48</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-351629">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用paintf的这条留言" onclick="return CommentQuote(&#39;comment-quote-351629&#39;,&#39;paintf&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-352903" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">vimniky</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-352903">
+            <p>阮大哥, 我也觉您对monad的理解有些偏差 . 这有一篇文章不错 : <a href="http://blog.sigfpe.com/2006/08/you-could-have-invented-monads-and.html" rel="nofollow">http://blog.sigfpe.com/2006/08/you-could-have-invented-monads-and.html</a></p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="November 24, 2015  9:46 AM">2015年11月24日 09:46</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-352903">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用vimniky的这条留言" onclick="return CommentQuote(&#39;comment-quote-352903&#39;,&#39;vimniky&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-352909" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">conndots</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-352909">
+            <p>图是怎么画的</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="November 24, 2015 11:07 AM">2015年11月24日 11:07</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-352909">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用conndots的这条留言" onclick="return CommentQuote(&#39;comment-quote-352909&#39;,&#39;conndots&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-353931" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author"><a title="http://gov.cn" href="http://gov.cn/" target="_blank" rel="nofollow">0x1339e6f</a></span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-353931">
+            <p>原来就是管道啊！把值或者函数封装传进下一个函数的意思？</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="January 11, 2016  4:11 PM">2016年1月11日 16:11</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-353931">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用0x1339e6f的这条留言" onclick="return CommentQuote(&#39;comment-quote-353931&#39;,&#39;0x1339e6f&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-354633" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">greenhand</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-354633">
+            <p>还是不理解，如果只是为了连续操作，函数连续嵌套调用不就行了吗？不理解后面引出的“数据类型”是什么作用。</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="February 24, 2016  8:21 AM">2016年2月24日 08:21</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-354633">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用greenhand的这条留言" onclick="return CommentQuote(&#39;comment-quote-354633&#39;,&#39;greenhand&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-354993" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">horex</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-354993">
+            <p>牛逼，简单易懂。<br>
+context instance = new context: <br>
+func -（context）dealContext:(context):content func:(func)func;</p>
+
+<p>instance = [func dealContext:instance func:AddFunc];<br>
+instance = [func dealContext:instance func:SubFunc];</p>
+
+<p>context instance = new context: <br>
+func monad1: -(context)monad1;<br>
+func monad2: -(context)monad1;<br>
+func monad3: -(context)monad1;</p>
+
+<p>[instance monad1] monad2] monad3];<br>
+</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="March 14, 2016  4:24 PM">2016年3月14日 16:24</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-354993">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用horex的这条留言" onclick="return CommentQuote(&#39;comment-quote-354993&#39;,&#39;horex&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-355354" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">zjs</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-355354">
+            <p>从博主的描述看monad只是个概念，其他语言使用都可以实现并且有相关的库（但不会提及这个术语），楼上提到的flatMap是一个经典使用场景。</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="March 31, 2016 11:14 AM">2016年3月31日 11:14</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-355354">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用zjs的这条留言" onclick="return CommentQuote(&#39;comment-quote-355354&#39;,&#39;zjs&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-355512" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">Limon</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-355512">
+            <p>这东西要实际写写 Haskell 才能完全理解，光看理论还是不会用。</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="April  9, 2016  1:10 PM">2016年4月 9日 13:10</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-355512">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用Limon的这条留言" onclick="return CommentQuote(&#39;comment-quote-355512&#39;,&#39;Limon&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-359922" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">w</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-359922">
+            <p>使用图片有 Aditya Bhargava 的许可吗?</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="June 30, 2016  9:25 AM">2016年6月30日 09:25</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-359922">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用w的这条留言" onclick="return CommentQuote(&#39;comment-quote-359922&#39;,&#39;w&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-361385" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">=&gt;</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-361385">
+            <p>胡扯淡，你写过几行函数式？换个问题，你写过几行代码？</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="July 30, 2016 12:18 AM">2016年7月30日 00:18</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-361385">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用=&gt;的这条留言" onclick="return CommentQuote(&#39;comment-quote-361385&#39;,&#39;=&gt;&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-366638" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">琦玉</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-366638">
+            <p>多次从作者的博客中受教，写得内容简洁且命中要害!</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="October 19, 2016 10:48 AM">2016年10月19日 10:48</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-366638">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用琦玉的这条留言" onclick="return CommentQuote(&#39;comment-quote-366638&#39;,&#39;琦玉&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-369914" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">圣达菲</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-369914">
+            <p>这篇文章并没有讲清楚这个概念。</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="December  6, 2016  5:23 PM">2016年12月 6日 17:23</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-369914">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用圣达菲的这条留言" onclick="return CommentQuote(&#39;comment-quote-369914&#39;,&#39;圣达菲&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-377316" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">lizi</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-377316">
+            <p>不是应该从幺半群Monoid讲到Funtor再讲到Monad么，这篇文章我看了很多次都没理解，后来看的scala函数式编程这本书</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="May 20, 2017  2:16 PM">2017年5月20日 14:16</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-377316">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用lizi的这条留言" onclick="return CommentQuote(&#39;comment-quote-377316&#39;,&#39;lizi&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-377753" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">1</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-377753">
+            <blockquote>
+<pre>引用lizi的发言：</pre>
+
+<p>不是应该从幺半群Monoid讲到Funtor再讲到Monad么，这篇文章我看了很多次都没理解，后来看的scala函数式编程这本书</p>
+
+</blockquote>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="June  8, 2017  9:53 AM">2017年6月 8日 09:53</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-377753">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用1的这条留言" onclick="return CommentQuote(&#39;comment-quote-377753&#39;,&#39;1&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-394733" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">刘岩</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-394733">
+            <p>文章太好了，感谢，打算重头看一下，涨了不少见识，我觉得那些开源的人真的很伟大，站在巨人的肩膀上，激动又兴奋！</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="November  5, 2018  6:59 PM">2018年11月 5日 18:59</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-394733">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用刘岩的这条留言" onclick="return CommentQuote(&#39;comment-quote-394733&#39;,&#39;刘岩&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-395199" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">褐言</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-395199">
+            <p>非常有帮助</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="November 21, 2018  5:54 PM">2018年11月21日 17:54</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-395199">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用褐言的这条留言" onclick="return CommentQuote(&#39;comment-quote-395199&#39;,&#39;褐言&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-396356" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">郑伟</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-396356">
+            <p>Ruby 语言下的一个实现 <a href="https://dry-rb.org/gems/dry-monads/1.0/task/" rel="nofollow">https://dry-rb.org/gems/dry-monads/1.0/task/</a></p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="December  1, 2018  1:14 AM">2018年12月 1日 01:14</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-396356">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用郑伟的这条留言" onclick="return CommentQuote(&#39;comment-quote-396356&#39;,&#39;郑伟&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-410660" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">yiwan</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-410660">
+            <p>不就是自函子范畴上的幺半群么，有什么难理解的（狗头表情）。</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="April 19, 2019  5:21 PM">2019年4月19日 17:21</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-410660">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用yiwan的这条留言" onclick="return CommentQuote(&#39;comment-quote-410660&#39;,&#39;yiwan&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-411446" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author"><a title="https://blog.csdn.net/liao_hb/article/details/90315189" href="https://blog.csdn.net/liao_hb/article/details/90315189" target="_blank" rel="nofollow">liao_hb</a></span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-411446">
+            <p>值，值函数打引号，数据类型----阮老师讲的这些概念，都没把一些人整糊涂，我也是醉成贵妃了。</p>
+
+<p>我们站在haskell的环境中，首先明确数据类型是有值的，例如Int这个数据类型从数量上讲有无限个值，可能的值：3,7,999...</p>
+
+<p>（+3）是不完全函数，它是某一种函数类型，它的输入和输出都有类型约束---Num这个类型类（Num类型类来自于haskell的概念），这个类型类有许多实例类型，如：Int，Float等，亦即，输入输出的数据类型可以是Num的实例类型。</p>
+
+<p>冲(+3)函数是用来处理值的，和“值函数”私加引号这些上下文语句，阮老师所讲的值函数应该是普通意义上“值函数”，亦即，函数在运行时就是用来处理值的,而（+3）可能处理的是Int类型的值。</p>
+
+<p>然而，值函数打引号，也可能指的是只狗造函数。（概念来自于haskell）<br>
+</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="May 29, 2019  7:49 PM">2019年5月29日 19:49</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-411446">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用liao_hb的这条留言" onclick="return CommentQuote(&#39;comment-quote-411446&#39;,&#39;liao_hb&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-413846" class="comment">
+    <div class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">中成才</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-413846">
+            <blockquote>
+<pre>引用corper的发言：</pre>
+
+<p>都说Monad可以简化IO操作，没看出来什么关系！</p>
+
+</blockquote>
+
+<p>IO 只是 Monad 的一个种类，还有很多种 Monad。函数式中的 Monad 其实隐含包括了惰性求值的概念。 <a href="https://typelevel.org/cats-effect/" rel="nofollow">https://typelevel.org/cats-effect/</a></p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="October  7, 2019  9:04 PM">2019年10月 7日 21:04</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-413846">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用中成才的这条留言" onclick="return CommentQuote(&#39;comment-quote-413846&#39;,&#39;中成才&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    
+        
+        <div id="comment-420973" class="comment">
+    <div id="comment-last" class="inner">
+        <div class="comment-header">
+            <div class="asset-meta">
+<p>
+                <span class="byline">
+                    
+
+                    <span class="vcard author">原型</span>
+
+ 说：
+                </span>
+</p>
+            </div>
+        </div>
+        <div class="comment-content" id="comment-quote-420973">
+            <p>我看了好几遍没看懂，现在 我懂了。。。。大神就是大神</p>
+        </div>
+<div class="comment-footer">
+<div class="comment-footer-inner">
+<p>
+                   <abbr class="published" title="August  3, 2020 10:04 PM">2020年8月 3日 22:04</abbr>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-420973">#</a>
+ | <a href="http://www.ruanyifeng.com/blog/2015/07/monad.html#comment-text" title="引用原型的这条留言" onclick="return CommentQuote(&#39;comment-quote-420973&#39;,&#39;原型&#39;);">引用</a>
+</p>
+</div>
+</div>
+    </div>
+</div>
+        
+    </div>
+        
+    
+
+
+    
+    
+    <div class="comments-open" id="comments-open">
+        <h2 class="comments-open-header">我要发表看法</h2>
+        <div class="comments-open-content">
+
+        
+            <div id="comment-greeting"></div>
+
+            <form method="post" action="http://www.ruanyifeng.com/cgi-bin/mtos/mt-comments.cgi" name="comments_form" id="comments-form" onsubmit="return pleaseWait();">
+                <input type="hidden" name="static" value="1">
+                <input type="hidden" name="entry_id" value="1847">
+                <input type="hidden" name="__lang" value="en">
+                <input type="hidden" name="parent_id" value="" id="comment-parent-id">
+                <input type="hidden" name="armor" value="1">
+                <input type="hidden" name="preview" value="">
+                <input type="hidden" name="sid" value="">
+                <div id="comments-open-data">
+            <div id="comments-open-text">
+                    <p><label for="comment-text">您的留言
+                    （HTML标签部分可用）</label></p>
+                    <p><textarea id="comment-text" name="text" rows="10" cols="50"></textarea></p>
+                </div>
+                    <div id="comment-form-name">
+                        <p><label for="comment-author">您的大名：</label></p>
+                        <p><input id="comment-author" name="author" size="30" value="">  <span class="hint"> «-必填</span></p>
+                    </div>
+                    <div id="comment-form-email">
+                        <p><label for="comment-email">电子邮件：</label></p>
+                        <p><input id="comment-email" name="email" size="30" value="">  <span class="hint"> «-必填，不公开</span></p>
+                    </div>
+                    <div id="comment-form-url">
+                        <p><label for="comment-url">个人网址：</label></p>
+                        <p><input id="comment-url" name="url" size="30" value="">  <span class="hint"> «-我信任你，不会填写广告链接</span></p>
+                    </div>
+                    <div id="comment-form-remember-me">
+                        <p>
+                        <label for="comment-bake-cookie">记住个人信息？</label><input type="checkbox" id="comment-bake-cookie" name="bakecookie" onclick="!this.checked?forgetMe(document.comments_form):rememberMe(document.comments_form)" value="1" accesskey="r"></p>
+                    </div>
+                </div>
+                    <div id="comment-form-reply" style="display:none">
+                    <input type="checkbox" id="comment-reply" name="comment_reply" value="" onclick="mtSetCommentParentID()">
+                    <label for="comment-reply" id="comment-reply-label"></label>
+                </div>
+                <div id="comments-open-captcha"></div>
+                <div id="comments-open-footer">
+<div id="wait" style="display:none;">
+<p><strong>正在发表您的评论，请稍候</strong></p>
+<p>
+<input type="text" name="percent" size="3" style="font-family:Arial; color:black;text-align:center; border-width:medium; border-style:none;">           
+<input type="text" name="chart" size="46" style="font-family:Arial;font-weight:bolder; color:black; padding:0px; border-style:none;">
+</p>
+</div>
+
+                    <p><input type="submit" accesskey="s" name="post" id="comment-submit" value="发表">  <span class="hint"> «- 点击按钮</span></p>
+                </div>
+            </form>
+
+
+        </div>
+    </div>
+
+    
+
+
+</div>
+
+
+
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        <script type="text/javascript" src="./图解 Monad - 阮一峰的网络日志_files/prism.js.下载"></script>
+        <script type="text/javascript" src="./图解 Monad - 阮一峰的网络日志_files/checker.js.下载"></script> 
+            <div id="footer">
+<div id="footer-inner">
+  <div id="footer-content">
+
+      
+<!--
+      <section> 
+     </section>
+  <p><a title="Instagram" target="_blank" href="http://instagram.com/ruanyf">Instagram</a></p>
+       <p><a title="订阅" href="https://app.feedblitz.com/f/f.fbz?Sub=348868" target="_blank">邮件订阅</a></p>
+  
+       <h2>Feed</h2>
+       <p><a title="FeedBurner" href="http://feeds.feedburner.com/ruanyifeng" target="_blank">FeedBurner</a></p>
+       <p><a title="atom.xml" href="http://www.ruanyifeng.com/blog/atom.xml" target="_blank">atom.xml</a></p>
+     
+      <p>支付宝：<a title="支付宝" href="alipays://platformapi/startapp?appId=20000067&url=http%3A%2F%2Fwww.ruanyifeng.com%2Fblog" target="_blank">yifeng.ruan@gmail.com</a></p>
+-->
+
+     <section>
+<!--
+       <h2>授权方式</h2>
+       <p><a title="许可证" href="http://creativecommons.org/licenses/by-nc-nd/3.0/deed.zh" target="_blank">自由转载-非商用-非衍生-保持署名</a></p>
+       <h2>微信公号</h2>
+       <h2>社交帐号</h2>
+       <h2>联系方式</h2>
+     -->
+       <p><img src="./图解 Monad - 阮一峰的网络日志_files/bg2020013101.jpg" alt="微信扫描"></p>
+       <p>
+         <a title="微博" href="http://weibo.com/ruanyf" target="_blank">Weibo</a> | 
+         <a title="Twitter" target="_blank" href="https://twitter.com/ruanyf">Twitter</a> |
+         <a title="GitHub" target="_blank" href="https://github.com/ruanyf">GitHub</a>
+       </p>
+     
+     <p>Email: <a title="电子邮件" href="mailto:yifeng.ruan@gmail.com" target="_blank">yifeng.ruan@gmail.com</a></p>
+     </section>
+  
+  
+
+
+  </div>
+</div>
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-46829782-1', 'ruanyifeng.com');
+  ga('send', 'pageview');
+
+</script>
+
+<script type="text/javascript" src="./图解 Monad - 阮一峰的网络日志_files/stats.js.下载"></script>
+<script>
+var supportImg = document.querySelector('#support-img');
+
+if (supportImg && _hmt) {
+  _hmt.push(['_trackEvent', 'banner', 'load']);
+  supportImg.addEventListener('click', function () {
+    _hmt.push(['_trackEvent', 'banner', 'click']);
+  }, false);
+}
+
+var homepageImg = document.querySelector('#homepage_sponsor');
+if (homepageImg && _hmt) {
+  _hmt.push(['_trackEvent', 'homepage-banner', 'load']);
+  homepageImg.addEventListener('click', function () {
+    _hmt.push(['_trackEvent', 'homepage-banner', 'click']);
+  }, false);
+}
+</script>
+
+
+<script>
+document.getElementById("share_button").innerHTML=document.getElementById("share_button_proto").innerHTML;
+</script>
+
+
+
+
+
+
+
+
+
+        </div>
+    </div>
+
+</body><div style="all: initial;"><div id="__hcfy__" style="all: initial;"></div></div></html>
