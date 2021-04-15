@@ -3,58 +3,63 @@
 函数式是一种编程范式, 所谓编程范式, 就是一种根据语言的功能对编程语言进行分类的方法, 常见的范式分为2个大类
 
 - 命令式编程 告诉计算机如何改变状态 (使用状态搭建程序)
-    - 过程式编程 是把一组指令转化成程序的编程方式 (c等语言, 调用各种api结合变量存储状态从而构成程序)
-    - 面向对象编程 将指令与他们所操作的状态的一部分进行分组, 代码被组织成对象, 这些对象包装了他们各自的代码修改状态 (封装指令和状态为一个对象, 然后调用)
-    - 特征: ① 能说明并控制操作发生的顺序, ② 允许副作用的产生, 可以共享一个外部变量(所以操作共用变量时要注意)
-```js
-const fruits = [{name:'apple',price:1},{name:'banana',price:2},{name:'pear',price:2}]
+    1. 过程式编程 是把一组指令转化成程序的编程方式 (c等语言, 调用各种api结合变量存储状态从而构成程序)
+    2. 面向对象编程 将指令与他们所操作的状态的一部分进行分组, 代码被组织成对象, 这些对象包装了他们各自的代码修改状态 (封装指令和状态为一个对象, 然后调用)
+    - 特征: ① 能说明并控制操作发生的顺序, ② 允许副作用的产生(不同方法里调用io,db,http等), 可以共享一个外部变量(所以操作共用变量时要注意)
+```js 命令式编程
+const frits = [{name:'apple',price:1},{name:'banana',price:2},{name:'pear',price:2}]
 let fruit
 for(var i =0; i<fruits.legnth;i++){
     if(fruits[i].name === 'apple') {
         fruit = fruits[i]
+        break
     }
 }
-console.log(fruit)                 // 过程式获得fruit
+console.log(fruit)                 // 过程式获得fruit: 在完整,半完整的流程中获得值
 ```
 
-```js
-
-```
-
-
-```js
+```js 声明式编程 - 函数式
 const fruits = [{name:'apple',price:1},{name:'banana',price:2},{name:'pear',price:2}]
-const fruit = fruits.filter(x=>x.name === 'apple')   // 描述了如何从fruits里面拿对应名字水果这一行为
+const fruit = fruits.filter(x=>x.name === 'apple')   // 这一行声明描述了如何从fruits里面拿对应名字水果这一行为: 在描述中获得值。 
+                                                     // 我们在这里关注偏重会转移到fruit上而不是获取fruit的过程上
 console.log(fruit)
 ```
 
-```js
-of(1,2,3)                             // 获取初始值并包装为可观察对象 (可以当作被proxy包起来)
-  .pipe(                              // 应用到每一个对象上
+```js 反应式
+of(1,2,3)                             // 获取初始值并包装为可观察对象 (容器构造器)
+  .pipe(                              // 定义一个数据处理管道 (组合式)
       filter(item=>item % 2 === 1),   // filter
       map(item=>item * 3),            // map
-).subscribe(item=> {                  // 
+).subscribe(item=> {                  // 订阅
   console.log(item)
 })
+
+option.subscribe(print)
+option.subscribe(write)
+option.subscribe(console.log)
+
 ```
 
-- 声明式编程 程序员只定义获取结果的属性, 而不直接计算获得结果 (弱化了结果 而强化了(思考/程序声明)过程本身)
+- 声明式编程 程序员只定义获取结果的属性, 而不直接计算获得结果 (声明一句xxx的语句) (弱化了结果 而强化了(思考/程序声明)过程本身)
     - in which the programmer merely(仅) declares(定义) properties of the desired(想要的) result, but not how to compute it
+
     - 函数式 (functional) 将所需结果声明为一系列函数应用的值 (当这句程序声明出来的时候逻辑已经写完了, 变量名只是用于给结果赋值的)
     - 逻辑式 (logic) (不懂)
     - 数学式 (mathematical) (不懂, 经济等领域用的多)
-    - 反应式 (reactive) 响应式, 通过数据流和变化来声明 (r: 事件流,事件监听后的回调,vue等数据绑定,监听数据然后被动获得结果)
+    - 反应式 (reactive) 响应式, 声明观察器和订阅器, 通过监控数据流完成程序功能 (r: 事件流,事件监听后的回调; 三大框架数据绑定,基本都是种响应式的思想)
     - 特征: 不需要关心状态(变量)的执行顺序(即副作用); 控制流程更自由(组合式)
 
-In contrast, languages that fit the declarative paradigm do not state the order in which to execute operations. 
-Instead, they supply a number of available operations in the system, along with the conditions under which each is allowed to execute. 
-The implementation of the language's execution model tracks which operations are free to execute and chooses the order independently.
-More at Comparison of multi-paradigm programming languages.
+~~- 相反, 符合声明式编程规范的语言可以不关心状态的执行顺序.~~ 
+  ~~作为替代, 他们在(语言)系统里提供了一系列操作符, 和每个操作执行的条件(使用规范/方法)~~
+  ~~语言的执行模型的实现 跟踪了哪些操作符是自由执行的和独立指令~~
+~~In contrast, languages that fit the declarative paradigm do not state the order in which to execute operations.~~ 
+~~Instead, they supply a number of available operations in the system, along with the conditions under which each is allowed to execute.~~ 
+~~The implementation of the language's execution model tracks which operations are free to execute and chooses the order independently.~~
+~~More at Comparison of multi-paradigm programming languages.~~
 
 总结一下两大编程范式就是
 - 命令式编程是通过创建并改变状态变量来构成程序的
-- 声明式编程是通过函数定义和函数组合构成程序, 程序功能在声明时构建完成
-
+- 声明式编程是通过函数定义和函数组合构成程序, 程序功能在声明时构建完成 (非常极端的例子里整个程序里没有变量, 只有常量; 要记录状态的时候通过闭包、 柯里化(部分应用)、 实时计算来记录数据)
 
 ###函数式是什么
 
@@ -79,14 +84,17 @@ More at Comparison of multi-paradigm programming languages.
     - 指函数可以作为参数和返回值进行传递
     - 高阶函数
         - 指输入一个函数或输出一个函数的函数
-        - 高度抽象的概念, 如: filter 抽象了一个过滤的能力,部分应用了过滤这个功能; map 抽象了一个映射的能力
+        - 是高度抽象的概念, 如: filter 抽象了一个过滤的能力,部分应用了过滤这个功能; map 抽象了一个映射的能力
         1. 部分应用 (Partial application) 指生成一个部分应用了的新函数
         2. 柯里化
             - 部分应用是生成一个新函数, 而柯里化是只采用单个参数传参的函数序列化技术, 柯里化用到了部分应用而不是部分应用本身
-        3. 组合式编程
-            1. 函数式里的组合式编程 f(g()) === g(f()) , 跟map,filter可以对调用差不多, 但是在js里比较难用, 因为没有类型
-            2. 因为纯函数干净, 函数调用之间不会相互影响, 可以组合编程语句  (todo 这个有问题)[vue组合式](./vue.png)
         3. 配合声明式和组合式方法编写程序, 可以使功能更加模块化
+        4. 组合式编程(见下文)
+            1. 函数式里的组合式编程是高阶函数的应用,通过传入函数然后嵌套调用达到组合的目的, 但是在js里比较难研究, 因为没有类型约束
+            2. 插一句vue的组合式, 组合主要体现在return对象里 [vue组合式js文件](./vue_js.png);  [vue组合式](./vue.png)
+                1. 组合式既指代码构建方式, 又指自己的api(api提供了使代码组合化的能力), watch等都是独立代码, 没有以前写watch对象时必须放在一起的约束
+                2. 是说把相关功能放在一起属于那块业务的 (GroupSet.vue)
+
 ```js
 const a = (count1) => (count2)=> count1+count2
 const b = a(1)
@@ -106,43 +114,15 @@ function a(str){
 const obj = {a:'1',b:'2'}
 var objStr = JSON.stringify(obj)
 var parseJsonFunc = a(objStr)
-parseJsonFunc('a')                  // 这是部分应用
+parseJsonFunc('a')                  // 这是部分应用, filter也算部分应用,不过里面是抽象了过滤功能
 
 a(objStr)('a')                      // 这是柯里化
-
-
-// --- filter, map
-var fruits = [{name:'apple',price:1},{name:'banana',price:2},{name:'pear',price:2}]
-var newbatchFruits = fruits.filter(x=>x.price === 2).map(x=>({...x,price:++x.price}))
-console.log({newbatchFruits, fruits})
-
-// -- 组合式编程 --
-var fruits = [{name:'apple',price:1},{name:'banana',price:2},{name:'pear',price:2}]
-
-function aa(fruits){
-  const _fruits = fruits
-  _fruits.filter(x=>x.price === 2)
-  return _fruits
-}
-
-function bb(fruits){
-  return fruits.map(x=>({...x,price:++x.price}))
-}
-
-function comp(fn1,fn2){
-  return function (list){
-    return bb(aa(list))
-  }
-}
-
-var a = comp(aa,bb)
-a(fruits)
-
 ```
----------------------todo 整理到这里
+
+
 2. 纯函数
-    - 是函数式编程概念里的子集, 使用纯函数时,固定的入参会返回固定的结果, 并且不受任何可变状态或副作用的影响
-        - 可变状态, 全局变量, js里外部包裹函数的变量等不固定因素, 实在要用可以参数的形式传入
+    - 是函数式编程概念里的子集, 使用纯函数时,固定的入参会返回固定的结果, 并且不受任何**可变状态**或**副作用**的影响
+        - 可变状态: 全局变量, js里外部包裹函数的局部变量等不固定因素, 实在要用可以参数的形式传入
         - 副作用(side effect), 会导致不确定结果的动作, 如io输入,db,网络数据等, 可变状态也算副作用(内存操作)
     - 无外部依赖, 容易删除
     - 结果稳定(参照透明或幂等性), 可使用[备忘录模式](https://en.wikipedia.org/wiki/Memoization) 进行缓存优化
@@ -153,19 +133,125 @@ a(fruits)
     - 尾递归优化, 这是一种语言功能, 具体概念来自于函数式语言实现的尾调用中, 因为js也是函数式的一种语言实现所以有该功能
 
 
+
+### 组合式编程
+map是个映射, 获取一个值然后映射为另一个值, 需要应用在容器里, 而js里数组是个天然容器所以可以使用map
+为什么容器这么重要, 因为容器可以封装自己的方法属性, 像map方法,value值,
+func of: {
+    map:fn => of(x=>fn(x))      // {for};
+    value: 'xxx'                // [1,2,3]
+    maybe: fn => of(x =>x ? null: fn(x))
+}
+
+of([1,2,3])
+.map(x=>x)                  // 对每一个item应用一个方法
+.map(x=>x)
+
+- 这个链式调用一样的实现了map的东西就是函子(functor)
+- functor 是实现(作用于)了 map 函数並遵守一些特定规则的容器类别。
+- 函子是作用于两个范畴之间的函数
+- 态射
+  - 态射是范畴内对象之间的映射关系。函子与它类似，函子是范畴与范畴间的映射关系
+也就是可以通过一个函子，把一个范畴映射到另一个范畴。
+- (范畴论) 函子将一个范畴的每个物件和另一个范畴的物件相关连起来，并将第一个范畴的每个态射和第二个范畴的态射相关连起来 (一个类型转到另一个类型) 
+    - (范畴学是使用另外不相关领域的知识来解决当前领域某个问题的学说, 是一门映射的学问)(坐标 空间到几何的映射)
+
+      - In functional programming, a functor is a design pattern inspired by the definition from category theory,
+      that allows for a generic type to apply a function inside without changing the structure of the generic type.
+    - 在函数式编程中，函子是受范畴理论中定义的启发而产生的一种设计模式，它允许一个通用类型在不改变通用类型结构的情况下，在内部应用一个函数。
+
+    - Functors are very useful in modeling functional effects to apply a function to computations that did not yet finish.
+    - 在模拟函数效应时，向尚未完成的计算应用函数是非常有用的。
+
+
+```js todo 组合式编程1 todo 这个有问题
+var fruits = [{name:'apple',price:1},{name:'banana',price:2},{name:'pear',price:2}]
+
+function choosePrice2Fruit(fruits){
+  let _fruits = []
+  for (let i = 0; i < fruits.length; i++) {
+    if (fruits[i].price === 2) {
+      _fruits.push(fruits[i])
+    }
+  }
+  return _fruits
+}
+
+function pricePlus(fruits){
+  let _fruits = []
+  for (let i = 0; i < fruits.length; i++) {
+    fruits[i].price++
+    _fruits.push(fruits[i])
+  }
+  return _fruits
+}
+
+function print(fruits) {
+  console.log(fruits)
+}
+
+function compose (fn1,fn2){
+  return function (list){
+    return fn2(fn1(list))
+  }
+}
+
+
+var ricePrice = compose(compose(choosePrice2Fruit,pricePlus),print)
+ricePrice(fruits)
+
+```
+
+```js 组合式编程2 filter, map
+var fruits = [{name:'apple',price:1},{name:'banana',price:2},{name:'pear',price:2}]
+var newbatchFruits = fruits
+  .filter(x=>x.price === 2)
+  .map(x=>({...x,price:++x.price}))
+console.log({newbatchFruits, fruits})
+```
+
+
 -- 总结
 1. 引入了新的编程思想 (高阶函数, 组合式编程, 响应式编程)
 2. 可维护性强 (模块化, 纯函数, 组合式编程)
 3. 高性能(尾调用)
 
+### 其他
+--------- 其他概念 -------------
 
----------其他 -------------
-monad 单子
-    - 衍生的 io monad, 是专门处理副作用的
-    - future, promise 模式
-组合子
+- functor
+    - monad
+        - 简单说，Monad就是一种设计模式，表示将一个运算过程，通过函数拆解成互相连接的多个步骤。你只要提供下一步运算所需的函数，整个运算就会自动进行下去。
+        - io monad
+        - future, promise
+        - 组合子
+        - ~~自函子范畴上的幺半群(这句话是混淆了数学跟编码里的monad的概念)~~
+    - 其他如Maybe函子等
+
+```js write monade
+var writer = value => [value, []];
+var unit = value => [value, []];
+
+var squared = x => [x * x, [`${x} was squared.`]];
+var halved = x => [x / 2, [`${x} was halved.`]];
+var bind = (writer, transform) => {
+    var [value, log] = writer;
+    var [result, updates] = transform(value);
+    return [result, log.concat(updates)];
+};
+var pipelog = (writer, ...transforms) => {
+    debugger
+    return
+    transforms.reduce(bind, writer);
+}
+pipelog(unit(4), squared, halved);
+```
+
 immutable 不可变元素
-map, filter cpu核心友好
+    - 为了尽可能消除副作用去掉了可变变量, (见上面)
+
+map, filter等语言自带的组合子 cpu核心友好
+
 closure 闭包
 
 -- 设计原则 --
@@ -179,37 +265,13 @@ closure 闭包
 
 ---------------- 新加的没整理的 -----------------------
 函子
-    - functor 是實現了 map 函式並遵守一些特定規則的容器型別 (简单理解为 map就是函子, 其他还有maybe函子等)
-    - 函子是一个普通对象（在其他语言中，可能是一个类），它实现了 map 函数，在遍历每个对象值的时候生成一个新对象。
-    - (范畴论) 函子将一个范畴的每个物件和另一个范畴的物件相关连起来，并将第一个范畴的每个态射和第二个范畴的态射相关连起来
     - https://blog.csdn.net/zhang6223284/article/details/82774584?utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromMachineLearnPai2%7Edefault-1.control&dist_request_id=1331647.13654.16184217759537601&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromMachineLearnPai2%7Edefault-1.control
-    - r: 看起来是一个实现了map接口的对象, 这个对象能做到xxx
 
-
-
-    - In functional programming, a functor is a design pattern inspired by the definition from category theory, 
-      that allows for a generic type to apply a function inside without changing the structure of the generic type.
-    - 在函数式编程中，函子是受范畴理论中定义的启发而产生的一种设计模式，它允许一个通用类型在不改变通用类型结构的情况下，在内部应用一个函数。
-    
-    - Functors are very useful in modeling functional effects to apply a function to computations that did not yet finish.
-    - 在模拟函数效应时，向尚未完成的计算应用函数是非常有用的。
-
-
-
-monad
-    - 单子是xxx
-    - ~~自函子上的幺半群(这句话是混淆了数学跟编码里的monad的概念)~~
-
-态射
-    - 态射是范畴内对象之间的映射关系。函子与它类似，函子是范畴与范畴间的映射关系，
-      也就是可以通过一个函子，把一个范畴映射到另一个范畴。
-
-- maybe 单子
-- bind
-- 
-
-
-
-
+--- todo 
+2. 我实现过的promise
+3. 
+4. 我代码里的函数式
+5. 闭包
+6. 组合子
 
 
