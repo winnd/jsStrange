@@ -13,4 +13,3 @@ class C{
     constructor() {}
 }
 function show() {}
-

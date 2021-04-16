@@ -23,7 +23,6 @@ var allCountryArr  = '阿尔及利亚,安哥拉,贝宁,博茨瓦纳,英属印度
   '萨摩亚,所罗门群岛,托克劳,汤加,图瓦卢,瓦努阿图,威克岛,瓦利斯和富图纳群岛, ,赫德岛和麦克唐纳群岛,南乔治亚岛和南桑威奇群岛';
 var WIPOCountryArr = [];
 
-
 // 获取全部国家 wiki上的 访问不了 可能需要代理
 // https.get(allCountryUrl, (res) => {
 //   var html = '';
@@ -38,7 +37,6 @@ var WIPOCountryArr = [];
 //   console.log(allCountryArr);
 // });
 
-
 // 获取在尼泊尔公约中的国家
 https.get(WIPOCountryUrl, (res) => {
   var html = '';
@@ -52,9 +50,3 @@ https.get(WIPOCountryUrl, (res) => {
   })
 
 });
-
-
-
-
-
-

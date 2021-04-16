@@ -1,5 +1,4 @@
 
-
 const data = ["a", "a", "b", "c", "c", "a"]
 
 const result = _.pickBy(

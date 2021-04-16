@@ -7,7 +7,6 @@
 *.iml
 out
 gen
---node/node爬虫/node_modules
 **/**/node_modules
 **/**/dist
 **/**/package-lock.json

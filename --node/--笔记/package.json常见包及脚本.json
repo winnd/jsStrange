@@ -1,0 +1,5 @@
+{
+  "script": {
+    "生成protobuf的脚本": "npx pbjs -t static-module -w es6 src/renderer/protoBuf/ServerBody.proto > src/renderer/protoBuf/ServerBody.js --keep-case"
+  }
+}
