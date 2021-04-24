@@ -1,4 +1,4 @@
-#### REPL命令行中
+#### REPL命令行
 - Ctrl+D                    退出REPL
 - node debug debugging.js   调试
 
@@ -13,11 +13,5 @@ const imgUrl = window.URL.createObjectURL(new Blob([img]))
 ```
 
 #### 其他
-- express常用中间件
-    - app.use(express.static("/r_try/")); // 处理静态资源
-
-- mongodb ORM
-    - 框架mongoose
-
 
 
