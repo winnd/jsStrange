@@ -147,6 +147,12 @@ of([1,2,3])
 .map(x=>x)                  // 对每一个item应用一个方法
 .map(x=>x)
 
+map
+> map is the name of a highter-order function that applies a given function to each element of a functor
+map是将给定功能应用于每个元素的高阶函数的名称, 并以相同的顺序返回结果列表
+
+
+
 - 这个链式调用一样的实现了map的东西就是函子(functor)
 - functor 是实现(作用于)了 map 函数並遵守一些特定规则的容器类别。
 - 函子是作用于两个范畴之间的函数
