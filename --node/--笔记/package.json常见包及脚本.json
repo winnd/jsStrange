@@ -4,8 +4,28 @@
   },
   "dependence": {
     "chokidar": "监听文件变化的 可以用于hmr",
-    "depsTree": "未知",
+    "depsTree": "查看项目node依赖树的",
     "cypress": "好像是测试包",
-    "dependency-tree-81": "获取模块的依赖"
+    "dependency-tree-81": "获取模块的依赖",
+    "cloc": "计算项目有多少行代码的 `cloc ./project`",
+
+    "vue的eslint套件----开始": "--start--- git库:ehutch79 / vite-eslint",
+    "@rollup/pluginutils": "开发rollup插件用的工具组",
+    "eslint": "eslint本体",
+    "rollup-plugin-eslint": "rollup插件中的eslint",
+    "eslint-plugin-vue": "vue3的eslint规则",
+    "vue的eslint套件----结束": "--end--- git库:ehutch79 / vite-eslint",
+
+    "typescript的eslint套件----开始": "--start--- ",
+    "typescript": "^3.9.9",
+    "@typescript-eslint/eslint-plugin": "??? ",
+    "@typescript-eslint/parser": "写在.eslintrc.js里parserOptions里的解析器",
+    "typescript的eslint套件----结束": "--end--- ",
+
+    "typescript套件----开始": "--start--- ",
+    "typescript": "^3.9.9",
+    "@types/node": "node的type包",
+    "ts-node": "用来在hmr里解析ts的",
+    "typescript套件----结束": "--end--- "
   }
 }
