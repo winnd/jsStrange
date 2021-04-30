@@ -1,6 +1,7 @@
+
 const mSetInterval = (func, interval, time) => new Promise(resolve => {
   let result = Promise.resolve()
-  
+
   for (let i = 0; i < time; i++) {
     result = result.then(() =>
       runTimeout(func, interval)
@@ -17,6 +18,5 @@ const runTimeout = (func, interval) => new Promise((resolve) => {
     resolve()
   }, interval)
 })
-
 
 mSetInterval(aa, 1000, 3)

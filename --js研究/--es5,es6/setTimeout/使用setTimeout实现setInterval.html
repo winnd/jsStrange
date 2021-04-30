@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zhcn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+
+</body>
+<script>
+  // 使用闭包模拟 setInterval
+  function MSetInterval3() {
+    let timeId
+    // todo 可以加个Map，区分不同的setInterval避免冲突
+
+    function mSetInterval(fn, delay) {
+      timeId = setTimeout(() => {
+        console.log({fn, delay})
+        fn()
+        mSetInterval(fn, delay)
+      }, delay)
+    }
+
+    function mClearInterval() {
+      clearTimeout(timeId)
+    }
+
+    return {
+      mSetInterval,
+      mClearInterval
+    }
+  }
+
+  ((fn) => {
+    // 核心业务逻辑
+    fn()
+    const testFunc = () => {console.log(1)}
+    const testFunc2 = () => {console.log(2)}
+    mSetInterval(testFunc, 1000)
+    mSetInterval(testFunc2, 3000)
+    document.onclick = mClearInterval
+  })(() => {
+    // 预操作业务逻辑
+    // 在全局注入 mSetInterval() 和 mClearInterval()
+    const mSetInterval3 = MSetInterval3()
+    const {mSetInterval, mClearInterval} = mSetInterval3
+    window.mSetInterval = mSetInterval        // 赋值到window对象上面去
+    window.mClearInterval = mClearInterval
+  })
+
+
+</script>
+</html>
