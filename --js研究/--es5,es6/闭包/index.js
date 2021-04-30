@@ -43,14 +43,3 @@ function foo () {
 function bar (fn) {
   fn() // 妈妈快看呀，这就是闭包！
 }
-
-// ④ 用try catch包起来
-for (var i = 0; i <= 5; i++) {
-  try {
-    throw i
-  } catch (i) {
-    setTimeout(async () => {
-      console.log(i)
-    }, i * 1000)
-  }
-}
