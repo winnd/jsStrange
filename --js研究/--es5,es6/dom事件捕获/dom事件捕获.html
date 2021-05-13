@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zhcn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+  .out {width: 200px;height: 200px; background: orange;}
+
+  .body {width: 150px;height: 150px; background: lightblue;}
+
+  .inner {width: 100px;height: 100px; background: lightgoldenrodyellow;}
+  </style>
+</head>
+<body>
+  <div class="out">
+    <div class="body">
+      <div class="inner"></div>
+    </div>
+  </div>
+</body>
+<script>
+
+(function ({ testSequence, testCatch }) {
+  testSequence()  // 测试事件循环的顺序
+  testCatch()     // 测试事件捕获
+})((() => {
+  /**
+   * 1,2,5,7,4,3,6  错误答案
+   * 1,5,7,3,6,4    正确答案
+   */
+  function testSequence () {
+    console.log(1)
+
+    Promise.resolve(() => {
+      console.log(2)
+    }).then(() => {
+      console.log(3)
+    })
+
+    setTimeout(() => {
+      console.log(4)
+    }, 0)
+
+    new Promise((resolve) => {
+      console.log(5)
+      resolve(6)
+    }).then((value) => {
+      console.log(value)
+    })
+
+    console.log(7)
+  }
+
+  /**
+   * 第三个参数默认是false，即默认冒泡
+   * 改为true后变成捕获
+   */
+  function testCatch () {
+    const $ = (selector) => document.querySelector(selector)
+    $('.out').addEventListener('click', () => {
+      console.log('out')
+    })
+    $('.body').addEventListener('click', () => {
+      console.log('body')
+    }, true)
+    $('.inner').addEventListener('click', () => {
+      console.log('inner')
+    })
+  }
+
+  return {
+    testSequence,
+    testCatch,
+  }
+})())
+
+
+</script>
+</html>
