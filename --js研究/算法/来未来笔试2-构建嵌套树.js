@@ -31,7 +31,6 @@ function findParentLeaf (leaf, obj) {
 
 // ① 改为嵌套结构
 // ② 根据嵌套结构递归
-
 //============= 测试代码 ==============
 var list = [
   { id: 1001, parentId: 0, name: 'AA' },
@@ -48,3 +47,4 @@ var list = [
 toNestObj(list)
 
 
+// todo 深度优先搜索
